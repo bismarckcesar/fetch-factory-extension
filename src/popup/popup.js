@@ -54,7 +54,7 @@ captureButton.addEventListener("click", async () => {
     const hasPermission = await ensureEndpointPermission(activeProfile.endpointUrl);
 
     if (!hasPermission) {
-      setStatus("Permissao para o endpoint nao foi concedida.", "error");
+      setFeedback("Permissao para o endpoint nao foi concedida.", "error", nextConfig.openResultTabEnabled);
       return;
     }
 
@@ -64,12 +64,12 @@ captureButton.addEventListener("click", async () => {
     const [tab] = await queryActiveTab();
 
     if (!tab || !Number.isInteger(tab.id)) {
-      setStatus("Nenhuma aba ativa foi encontrada.", "error");
+      setFeedback("Nenhuma aba ativa foi encontrada.", "error", nextConfig.openResultTabEnabled);
       return;
     }
 
     if (isUnsupportedPageUrl(tab.url)) {
-      setStatus("Esta pagina nao permite captura pela extensao.", "error");
+      setFeedback("Esta pagina nao permite captura pela extensao.", "error", nextConfig.openResultTabEnabled);
       return;
     }
 
@@ -79,14 +79,14 @@ captureButton.addEventListener("click", async () => {
     });
 
     if (!result || !result.ok) {
-      setStatus(result?.message || "Nao foi possivel enviar o HTML.", "error");
+      setFeedback(result?.message || "Nao foi possivel enviar o HTML.", "error", nextConfig.openResultTabEnabled);
       return;
     }
 
     const resultTabMessage = result.resultTabOpened ? " Resultado aberto em nova aba." : " Aba de resultado desativada.";
-    setStatus(`HTML enviado. Status ${result.status}.${resultTabMessage}`, "success");
+    setFeedback(`HTML enviado. Status ${result.status}.${resultTabMessage}`, "success", result.resultTabOpened);
   } catch (error) {
-    setStatus(error.message || "Nao foi possivel capturar e enviar.", "error");
+    setFeedback(error.message || "Nao foi possivel capturar e enviar.", "error", openResultTabEnabledInput.checked);
   } finally {
     setBusy(false);
   }
@@ -208,4 +208,12 @@ function setBusy(isBusy) {
 function setStatus(message, kind) {
   statusElement.textContent = message;
   statusElement.dataset.kind = kind;
+}
+
+function setFeedback(message, kind, resultTabOpened) {
+  setStatus(message, kind);
+
+  if (!resultTabOpened) {
+    alert(message);
+  }
 }
