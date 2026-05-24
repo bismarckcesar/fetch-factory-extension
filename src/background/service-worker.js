@@ -3,22 +3,41 @@ import { sendCapturedHtml } from "../shared/http.js";
 import { getConfig, saveLatestApiResponse } from "../shared/storage.js";
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (!message || message.type !== "CAPTURE_AND_SEND_HTML") {
+  if (!message) {
     return false;
   }
 
-  captureAndSendHtml(message)
+  if (message.type === "CAPTURE_AND_SEND_HTML") {
+    captureAndSendHtml(message)
+      .then((result) => {
+        sendResponse({ ok: true, ...result });
+      })
+      .catch((error) => {
+        sendResponse({
+          ok: false,
+          message: error.message || "Nao foi possivel capturar e enviar o HTML."
+        });
+      });
+
+    return true;
+  }
+
+  if (message.type === "SHOW_TAB_ALERT") {
+    showTabAlert(message)
     .then((result) => {
       sendResponse({ ok: true, ...result });
     })
     .catch((error) => {
       sendResponse({
         ok: false,
-        message: error.message || "Nao foi possivel capturar e enviar o HTML."
+        message: error.message || "Nao foi possivel mostrar o alerta na pagina."
       });
     });
 
-  return true;
+    return true;
+  }
+
+  return false;
 });
 
 async function captureAndSendHtml({ tabId }) {
@@ -129,6 +148,28 @@ function injectCaptureScript(tabId) {
     target: { tabId },
     files: ["src/content/capture-html.js"]
   });
+}
+
+async function showTabAlert({ tabId, message }) {
+  if (!Number.isInteger(tabId)) {
+    throw new Error("Nenhuma aba ativa foi encontrada para mostrar o alerta.");
+  }
+
+  const tab = await getTab(tabId);
+
+  if (isUnsupportedPageUrl(tab.url)) {
+    throw new Error("Esta pagina nao permite alerta pela extensao.");
+  }
+
+  await chrome.scripting.executeScript({
+    target: { tabId },
+    func: (alertMessage) => {
+      window.alert(alertMessage);
+    },
+    args: [String(message || "")]
+  });
+
+  return {};
 }
 
 function sendMessageToTab(tabId, message) {

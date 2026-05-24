@@ -47,46 +47,49 @@ form.addEventListener("submit", async (event) => {
 captureButton.addEventListener("click", async () => {
   setBusy(true);
   setStatus("Capturando e enviando...", "");
+  let feedbackTabId = null;
 
   try {
     const nextConfig = buildConfigFromForm();
     const activeProfile = getActiveProfile(nextConfig);
+    const [tab] = await queryActiveTab();
+    const tabId = Number.isInteger(tab?.id) ? tab.id : null;
+    feedbackTabId = tabId;
+
+    if (!tabId) {
+      setFeedback("Nenhuma aba ativa foi encontrada.", "error", nextConfig.openResultTabEnabled, tabId);
+      return;
+    }
+
+    if (isUnsupportedPageUrl(tab.url)) {
+      setFeedback("Esta pagina nao permite captura pela extensao.", "error", nextConfig.openResultTabEnabled, tabId);
+      return;
+    }
+
     const hasPermission = await ensureEndpointPermission(activeProfile.endpointUrl);
 
     if (!hasPermission) {
-      setFeedback("Permissao para o endpoint nao foi concedida.", "error", nextConfig.openResultTabEnabled);
+      setFeedback("Permissao para o endpoint nao foi concedida.", "error", nextConfig.openResultTabEnabled, tabId);
       return;
     }
 
     currentConfig = await saveConfig(nextConfig);
     renderProfileOptions();
 
-    const [tab] = await queryActiveTab();
-
-    if (!tab || !Number.isInteger(tab.id)) {
-      setFeedback("Nenhuma aba ativa foi encontrada.", "error", nextConfig.openResultTabEnabled);
-      return;
-    }
-
-    if (isUnsupportedPageUrl(tab.url)) {
-      setFeedback("Esta pagina nao permite captura pela extensao.", "error", nextConfig.openResultTabEnabled);
-      return;
-    }
-
     const result = await sendRuntimeMessage({
       type: "CAPTURE_AND_SEND_HTML",
-      tabId: tab.id
+      tabId
     });
 
     if (!result || !result.ok) {
-      setFeedback(result?.message || "Nao foi possivel enviar o HTML.", "error", nextConfig.openResultTabEnabled);
+      setFeedback(result?.message || "Nao foi possivel enviar o HTML.", "error", nextConfig.openResultTabEnabled, tabId);
       return;
     }
 
     const resultTabMessage = result.resultTabOpened ? " Resultado aberto em nova aba." : " Aba de resultado desativada.";
-    setFeedback(`HTML enviado. Status ${result.status}.${resultTabMessage}`, "success", result.resultTabOpened);
+    setFeedback(`HTML enviado. Status ${result.status}.${resultTabMessage}`, "success", result.resultTabOpened, tabId);
   } catch (error) {
-    setFeedback(error.message || "Nao foi possivel capturar e enviar.", "error", openResultTabEnabledInput.checked);
+    setFeedback(error.message || "Nao foi possivel capturar e enviar.", "error", openResultTabEnabledInput.checked, feedbackTabId);
   } finally {
     setBusy(false);
   }
@@ -210,10 +213,18 @@ function setStatus(message, kind) {
   statusElement.dataset.kind = kind;
 }
 
-function setFeedback(message, kind, resultTabOpened) {
+function setFeedback(message, kind, resultTabOpened, tabId) {
   setStatus(message, kind);
 
-  if (!resultTabOpened) {
-    alert(message);
+  if (!resultTabOpened && Number.isInteger(tabId)) {
+    showWindowAlert(tabId, message);
   }
+}
+
+function showWindowAlert(tabId, message) {
+  sendRuntimeMessage({
+    type: "SHOW_TAB_ALERT",
+    tabId,
+    message
+  }).catch(() => {});
 }
