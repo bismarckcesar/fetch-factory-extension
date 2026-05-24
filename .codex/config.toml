@@ -1,0 +1,9 @@
+personality = "pragmatic"
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+project_doc_max_bytes = 65536
+project_root_markers = ["AGENTS.md", "package.json"]
+
+[features]
+personality = true
+multi_agent = true
