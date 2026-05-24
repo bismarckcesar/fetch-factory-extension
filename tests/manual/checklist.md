@@ -13,6 +13,8 @@
 - [ ] Confirmar que o endpoint recebe `Content-Type: application/json`.
 - [ ] Confirmar que o payload contem o type configurado no popup/opcoes.
 - [ ] Confirmar que o payload contem `html`.
+- [ ] Confirmar que parametros extras configurados por perfil sao enviados no mesmo JSON.
+- [ ] Confirmar que parametros extras com chaves `type` ou `html` sao bloqueados.
 - [ ] Confirmar que uma nova aba abre com o JSON retornado pela API.
 - [ ] Confirmar que o console nao exibe HTML capturado.
 - [ ] Confirmar que respostas da API que ecoam HTML sao redigidas na aba de resultado.

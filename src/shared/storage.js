@@ -1,10 +1,10 @@
-import { DEFAULT_CONFIG, normalizeConfig } from "./config.js";
+import { normalizeConfig } from "./config.js";
 
 const LATEST_API_RESPONSE_KEY = "latestApiResponse";
 
 export function getConfig() {
   return new Promise((resolve) => {
-    chrome.storage.sync.get(DEFAULT_CONFIG, (storedConfig) => {
+    chrome.storage.sync.get(null, (storedConfig) => {
       resolve(normalizeConfig(storedConfig));
     });
   });

@@ -27,8 +27,9 @@ const server = http.createServer((request, response) => {
 
     const html = typeof payload.html === "string" ? payload.html : "";
     const isValidPayload = typeof payload.type === "string" && payload.type.trim().length > 0 && html.length > 0;
+    const extraParamKeys = Object.keys(payload).filter((key) => key !== "type" && key !== "html");
 
-    console.log(`Received payload type=${payload.type || "missing"} htmlBytes=${Buffer.byteLength(html, "utf8")}`);
+    console.log(`Received payload type=${payload.type || "missing"} htmlBytes=${Buffer.byteLength(html, "utf8")} extraParams=${extraParamKeys.length}`);
 
     response.writeHead(isValidPayload ? 200 : 422, {
       "Content-Type": "application/json; charset=UTF-8"
@@ -36,6 +37,7 @@ const server = http.createServer((request, response) => {
     response.end(JSON.stringify({
       ok: isValidPayload,
       type: payload.type,
+      extraParamKeys,
       htmlBytes: Buffer.byteLength(html, "utf8"),
       receivedAt: new Date().toISOString()
     }));

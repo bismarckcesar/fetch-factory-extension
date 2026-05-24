@@ -36,7 +36,10 @@ h1 {
   font-weight: 700;
 }
 
-input[type="url"] {
+input[type="text"],
+input[type="url"],
+select,
+textarea {
   box-sizing: border-box;
   width: 100%;
   border: 1px solid #c9ced8;
@@ -45,11 +48,11 @@ input[type="url"] {
   font: inherit;
 }
 
-.checkbox-field {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
+textarea {
+  min-height: 150px;
+  resize: vertical;
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 13px;
 }
 
 button {

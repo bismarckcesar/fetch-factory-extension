@@ -9,7 +9,7 @@ Primeira versao funcional, sem build step e sem dependencias externas.
 Fluxo implementado:
 
 1. O usuario abre o popup.
-2. Configura a URL do endpoint e o `type` do payload.
+2. Escolhe um perfil e configura a URL do endpoint, o `type` do payload e os parametros extras.
 3. Clica em `Capturar e enviar`.
 4. A extensao captura o HTML da aba atual.
 5. O background envia um `POST` JSON para o endpoint configurado.
@@ -34,11 +34,13 @@ Body:
 ```json
 {
   "type": "<type-configurado>",
-  "html": "<html>...</html>"
+  "html": "<html>...</html>",
+  "paramcustom1": "",
+  "paramcustom2": ""
 }
 ```
 
-O valor inicial sugerido para `type` e `asurascans`, mas ele pode ser alterado no popup ou na tela de opcoes.
+O valor inicial sugerido para `type` e `asurascans`, mas ele pode ser alterado no popup ou na tela de opcoes. Campos extras sao configurados por perfil como um objeto JSON e sao enviados no mesmo nivel de `type` e `html`.
 
 Retorno esperado:
 
@@ -102,6 +104,7 @@ O retorno pode ter qualquer estrutura JSON valida. A extensao mostra esse JSON e
 
 - O endpoint nunca e hardcoded.
 - O `type` do payload e configuravel e salvo nas configuracoes da extensao.
+- Os parametros extras sao configuraveis por perfil e nao podem sobrescrever as chaves reservadas `type` e `html`.
 - O HTML capturado nao e salvo em storage persistente.
 - O HTML capturado nao e registrado em logs.
 - A URL do endpoint e validada antes do envio.

@@ -14,6 +14,16 @@
 
       <form id="settings-form" class="form">
         <label class="field">
+          <span>Perfil</span>
+          <select id="profile-select"></select>
+        </label>
+
+        <label class="field">
+          <span>Nome do perfil</span>
+          <input id="profile-name" type="text" autocomplete="off">
+        </label>
+
+        <label class="field">
           <span>Endpoint</span>
           <input id="endpoint-url" type="url" placeholder="https://example.com/endpoint" autocomplete="off">
         </label>
@@ -21,6 +31,11 @@
         <label class="field">
           <span>Type</span>
           <input id="payload-type" type="text" placeholder="asurascans" autocomplete="off">
+        </label>
+
+        <label class="field">
+          <span>Parametros extras JSON</span>
+          <textarea id="extra-params" rows="5" spellcheck="false" placeholder="{ &quot;paramcustom1&quot;: &quot;&quot;, &quot;paramcustom2&quot;: &quot;&quot; }"></textarea>
         </label>
 
         <button id="save-button" type="submit">Salvar configuracao</button>

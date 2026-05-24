@@ -1,4 +1,4 @@
-import { isUnsupportedPageUrl } from "../shared/config.js";
+import { getActiveProfile, isUnsupportedPageUrl } from "../shared/config.js";
 import { sendCapturedHtml } from "../shared/http.js";
 import { getConfig, saveLatestApiResponse } from "../shared/storage.js";
 
@@ -32,7 +32,7 @@ async function captureAndSendHtml({ tabId }) {
     throw new Error("Esta pagina nao permite captura pela extensao.");
   }
 
-  const config = await getConfig();
+  const activeProfile = getActiveProfile(await getConfig());
   await injectCaptureScript(tabId);
 
   const captureResult = await sendMessageToTab(tabId, {
@@ -44,8 +44,9 @@ async function captureAndSendHtml({ tabId }) {
   }
 
   const sendResult = await sendCapturedHtml({
-    endpointUrl: config.endpointUrl,
-    payloadType: config.payloadType,
+    endpointUrl: activeProfile.endpointUrl,
+    payloadType: activeProfile.payloadType,
+    extraParams: activeProfile.extraParams,
     html: captureResult.html
   });
 

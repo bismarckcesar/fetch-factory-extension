@@ -1,6 +1,6 @@
-import { validateEndpointUrl, validatePayloadType } from "./config.js";
+import { validateEndpointUrl, validateExtraParams, validatePayloadType } from "./config.js";
 
-export async function sendCapturedHtml({ endpointUrl, payloadType, html }) {
+export async function sendCapturedHtml({ endpointUrl, payloadType, extraParams = {}, html }) {
   const validation = validateEndpointUrl(endpointUrl);
 
   if (!validation.ok) {
@@ -11,6 +11,12 @@ export async function sendCapturedHtml({ endpointUrl, payloadType, html }) {
 
   if (!typeValidation.ok) {
     throw new Error(typeValidation.message);
+  }
+
+  const extraParamsValidation = validateExtraParams(extraParams);
+
+  if (!extraParamsValidation.ok) {
+    throw new Error(extraParamsValidation.message);
   }
 
   if (typeof html !== "string" || !html.trim()) {
@@ -24,7 +30,8 @@ export async function sendCapturedHtml({ endpointUrl, payloadType, html }) {
     },
     body: JSON.stringify({
       type: typeValidation.value,
-      html
+      html,
+      ...extraParamsValidation.value
     }),
     credentials: "omit",
     cache: "no-store"
