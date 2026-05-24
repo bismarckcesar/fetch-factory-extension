@@ -1,0 +1,81 @@
+# Fetch Factory Extension
+
+Extensao Manifest V3 para Chrome/Brave que captura o HTML da aba atual e envia para um endpoint HTTP configuravel pelo usuario.
+
+## Estado
+
+Primeira versao funcional, sem build step e sem dependencias externas.
+
+Fluxo implementado:
+
+1. O usuario abre o popup.
+2. Configura a URL do endpoint.
+3. Clica em `Capturar e enviar`.
+4. A extensao captura o HTML da aba atual.
+5. O background envia o HTML para o endpoint configurado.
+6. O popup mostra sucesso ou erro.
+
+## Estrutura
+
+```text
+/
+├── manifest.json
+├── package.json
+├── README.md
+├── AGENTS.md
+├── .codex/
+│   └── agents/
+├── src/
+│   ├── background/
+│   │   └── service-worker.js
+│   ├── content/
+│   │   └── capture-html.js
+│   ├── options/
+│   │   ├── options.html
+│   │   ├── options.css
+│   │   └── options.js
+│   ├── popup/
+│   │   ├── popup.html
+│   │   ├── popup.css
+│   │   └── popup.js
+│   └── shared/
+│       ├── config.js
+│       ├── http.js
+│       └── storage.js
+└── tests/
+    └── manual/
+```
+
+## Como carregar no Chrome/Brave
+
+1. Abra `chrome://extensions` ou `brave://extensions`.
+2. Ative o modo de desenvolvedor.
+3. Clique em `Load unpacked` ou `Carregar sem compactacao`.
+4. Selecione a raiz deste projeto.
+5. Abra uma pagina comum da web.
+6. Abra o popup da extensao.
+7. Configure um endpoint HTTPS ou `http://localhost`.
+8. Clique em `Capturar e enviar`.
+
+## Regras de seguranca
+
+- O endpoint nunca e hardcoded.
+- O HTML capturado nao e salvo em storage.
+- O HTML capturado nao e registrado em logs.
+- A URL do endpoint e validada antes do envio.
+- O envio automatico fica salvo como configuracao, mas nao executa envio silencioso nesta primeira versao.
+- A extensao pede permissao apenas para a origem do endpoint configurado.
+
+## Endpoint de teste local
+
+Use um endpoint local controlado durante desenvolvimento. Exemplo simples com Node.js:
+
+```bash
+node tests/manual/local-endpoint.js
+```
+
+Depois configure o endpoint como:
+
+```text
+http://localhost:3000/capture
+```
