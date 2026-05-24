@@ -1,8 +1,9 @@
-import { getEndpointOriginPattern, isUnsupportedPageUrl, validateEndpointUrl } from "../shared/config.js";
+import { getEndpointOriginPattern, isUnsupportedPageUrl, validateEndpointUrl, validatePayloadType } from "../shared/config.js";
 import { getConfig, saveConfig } from "../shared/storage.js";
 
 const form = document.querySelector("#settings-form");
 const endpointUrlInput = document.querySelector("#endpoint-url");
+const payloadTypeInput = document.querySelector("#payload-type");
 const autoSendEnabledInput = document.querySelector("#auto-send-enabled");
 const captureButton = document.querySelector("#capture-button");
 const statusElement = document.querySelector("#status");
@@ -13,6 +14,7 @@ async function initPopup() {
   try {
     const config = await getConfig();
     endpointUrlInput.value = config.endpointUrl;
+    payloadTypeInput.value = config.payloadType;
     autoSendEnabledInput.checked = config.autoSendEnabled;
   } catch {
     setStatus("Nao foi possivel carregar a configuracao.", "error");
@@ -21,6 +23,19 @@ async function initPopup() {
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
+
+  const endpointValidation = validateEndpointUrl(endpointUrlInput.value);
+  const typeValidation = validatePayloadType(payloadTypeInput.value);
+
+  if (!endpointValidation.ok) {
+    setStatus(endpointValidation.message, "error");
+    return;
+  }
+
+  if (!typeValidation.ok) {
+    setStatus(typeValidation.message, "error");
+    return;
+  }
 
   try {
     await saveCurrentConfig();
@@ -33,9 +48,15 @@ form.addEventListener("submit", async (event) => {
 captureButton.addEventListener("click", async () => {
   const endpointUrl = endpointUrlInput.value.trim();
   const validation = validateEndpointUrl(endpointUrl);
+  const typeValidation = validatePayloadType(payloadTypeInput.value);
 
   if (!validation.ok) {
     setStatus(validation.message, "error");
+    return;
+  }
+
+  if (!typeValidation.ok) {
+    setStatus(typeValidation.message, "error");
     return;
   }
 
@@ -75,7 +96,7 @@ captureButton.addEventListener("click", async () => {
       return;
     }
 
-    setStatus(`HTML enviado. Status ${result.status}.`, "success");
+    setStatus(`HTML enviado. Status ${result.status}. Resultado aberto em nova aba.`, "success");
   } catch (error) {
     setStatus(error.message || "Nao foi possivel capturar e enviar.", "error");
   } finally {
@@ -86,6 +107,7 @@ captureButton.addEventListener("click", async () => {
 function saveCurrentConfig() {
   return saveConfig({
     endpointUrl: endpointUrlInput.value,
+    payloadType: payloadTypeInput.value,
     autoSendEnabled: autoSendEnabledInput.checked
   });
 }

@@ -10,6 +10,9 @@ Subagent responsavel por revisar codigo antes de merge, entrega ou finalizacao, 
 - Verificar se o Manifest V3 esta correto.
 - Verificar se nao ha logs sensiveis.
 - Verificar se o endpoint e configuravel.
+- Verificar se o `type` do payload e configuravel.
+- Verificar se o envio usa `POST` com corpo JSON `{ type: payloadType, html }`.
+- Verificar se o retorno JSON da API e exibido em uma nova aba interna.
 - Sugerir melhorias simples e proporcionais ao escopo.
 - Identificar riscos de regressao em captura, configuracao, storage e envio HTTP.
 
@@ -22,7 +25,9 @@ Subagent responsavel por revisar codigo antes de merge, entrega ou finalizacao, 
 - Nao reescrever tudo sem necessidade.
 - Priorizar bugs, riscos de privacidade, permissoes excessivas e comportamento inseguro.
 - Confirmar que o HTML capturado nao aparece em logs, erros ou storage persistente indevido.
+- Confirmar que a aba de resultado nao exibe HTML capturado diretamente.
 - Confirmar que nenhum endpoint, token ou header privado foi hardcoded.
+- Confirmar que `asurascans` aparece apenas como valor padrao inicial, nao como unica opcao fixa.
 
 ## Formato Recomendado de Revisao
 

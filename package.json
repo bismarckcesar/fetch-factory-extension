@@ -4,7 +4,7 @@
   "description": "Chrome/Brave extension that sends the current tab HTML to a configurable endpoint.",
   "private": true,
   "scripts": {
-    "check": "node --check src/shared/config.js && node --check src/shared/storage.js && node --check src/shared/http.js && node --check src/background/service-worker.js && node --check src/content/capture-html.js && node --check src/popup/popup.js && node --check src/options/options.js && node --check tests/manual/local-endpoint.js",
+    "check": "node --check src/shared/config.js && node --check src/shared/storage.js && node --check src/shared/http.js && node --check src/background/service-worker.js && node --check src/content/capture-html.js && node --check src/popup/popup.js && node --check src/options/options.js && node --check src/result/result.js && node --check tests/manual/local-endpoint.js",
     "start:local-endpoint": "node tests/manual/local-endpoint.js"
   },
   "keywords": [],

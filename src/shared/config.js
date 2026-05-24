@@ -1,5 +1,6 @@
 export const DEFAULT_CONFIG = {
   endpointUrl: "",
+  payloadType: "asurascans",
   autoSendEnabled: false
 };
 
@@ -15,7 +16,24 @@ const UNSUPPORTED_PAGE_PROTOCOLS = new Set([
 export function normalizeConfig(config = {}) {
   return {
     endpointUrl: typeof config.endpointUrl === "string" ? config.endpointUrl.trim() : "",
+    payloadType: typeof config.payloadType === "string" ? config.payloadType.trim() : DEFAULT_CONFIG.payloadType,
     autoSendEnabled: Boolean(config.autoSendEnabled)
+  };
+}
+
+export function validatePayloadType(payloadType) {
+  const normalizedType = typeof payloadType === "string" ? payloadType.trim() : "";
+
+  if (!normalizedType) {
+    return {
+      ok: false,
+      message: "Configure o type antes de enviar."
+    };
+  }
+
+  return {
+    ok: true,
+    value: normalizedType
   };
 }
 

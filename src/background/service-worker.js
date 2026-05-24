@@ -1,6 +1,6 @@
 import { isUnsupportedPageUrl } from "../shared/config.js";
 import { sendCapturedHtml } from "../shared/http.js";
-import { getConfig } from "../shared/storage.js";
+import { getConfig, saveLatestApiResponse } from "../shared/storage.js";
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (!message || message.type !== "CAPTURE_AND_SEND_HTML") {
@@ -43,12 +43,42 @@ async function captureAndSendHtml({ tabId, tabUrl }) {
 
   const sendResult = await sendCapturedHtml({
     endpointUrl: config.endpointUrl,
+    payloadType: config.payloadType,
     html: captureResult.html
   });
+
+  await saveLatestApiResponse({
+    receivedAt: new Date().toISOString(),
+    status: sendResult.status,
+    json: sendResult.json
+  });
+
+  await openResultTab();
+
+  if (!sendResult.ok) {
+    throw new Error(`O endpoint respondeu com status ${sendResult.status}. O JSON retornado foi aberto em uma nova aba.`);
+  }
 
   return {
     status: sendResult.status
   };
+}
+
+function openResultTab() {
+  return new Promise((resolve, reject) => {
+    chrome.tabs.create({
+      url: chrome.runtime.getURL("src/result/result.html")
+    }, (tab) => {
+      const error = chrome.runtime.lastError;
+
+      if (error) {
+        reject(new Error(error.message));
+        return;
+      }
+
+      resolve(tab);
+    });
+  });
 }
 
 function injectCaptureScript(tabId) {

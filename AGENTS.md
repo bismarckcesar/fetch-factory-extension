@@ -6,6 +6,15 @@ Este repositorio contem uma extensao para Brave/Google Chrome escrita em JavaScr
 
 A extensao deve usar Manifest V3 e tem como objetivo capturar o HTML da pagina atual e enviar esse conteudo para um endpoint HTTP configuravel pelo usuario.
 
+Contrato atual de envio:
+
+- Metodo HTTP: `POST`.
+- `Content-Type`: `application/json; charset=UTF-8`.
+- Corpo JSON: `{ "type": "<type-configurado>", "html": "<html>...</html>" }`.
+- O valor padrao inicial de `type` e `asurascans`, mas o usuario deve conseguir configurar esse valor no popup/opcoes.
+- O retorno esperado da API e JSON.
+- A extensao deve abrir uma nova aba interna para exibir o JSON retornado pela API.
+
 Principios centrais:
 
 - Evitar frameworks pesados.
@@ -39,6 +48,10 @@ A estrutura abaixo e uma sugestao para manter o projeto claro e facil de manter:
 │   │   ├── options.html
 │   │   ├── options.js
 │   │   └── options.css
+│   ├── result/
+│   │   ├── result.html
+│   │   ├── result.js
+│   │   └── result.css
 │   ├── shared/
 │   │   ├── config.js
 │   │   ├── http.js
@@ -55,7 +68,8 @@ Responsabilidades sugeridas:
 - `src/background/service-worker.js`: coordenacao entre popup, content scripts, configuracao e envio HTTP.
 - `src/content/capture-html.js`: captura do HTML da pagina atual, sem logs e sem envio direto se isso nao for explicitamente necessario.
 - `src/popup/`: interface para acao manual, status e controles rapidos.
-- `src/options/`: configuracao persistente do endpoint, metodo, headers opcionais e envio automatico.
+- `src/options/`: configuracao persistente do endpoint, type do payload e envio automatico.
+- `src/result/`: exibicao do JSON retornado pela API apos envio bem-sucedido.
 - `src/shared/`: funcoes reutilizaveis para storage, validacao de configuracao e envio HTTP.
 - `tests/manual/`: roteiros de teste manual, quando forem adicionados.
 
@@ -69,6 +83,23 @@ Este projeto possui subagents em `.codex/agents` para dividir responsabilidades 
 
 Antes de qualquer subagent executar tarefas, ele deve sempre ler este `AGENTS.md` principal na raiz do projeto. Todos os subagents devem seguir estas regras globais alem das instrucoes especificas do seu arquivo em `.codex/agents`.
 
+## Subagent de seguranca
+
+Existe um subagent em `.agents/security.md`.
+
+Ele deve ser chamado sempre que houver mudancas em:
+
+- `manifest.json`
+- Content scripts
+- Background/service worker
+- Popup/options
+- Storage
+- Comunicacao entre scripts
+- Envio de HTML para endpoint
+- Permissoes da extensao
+
+A extensao deve tratar todo HTML capturado como dado sensivel. Ele nunca deve ser exposto para paginas, outras extensoes, logs, storage permanente ou APIs nao configuradas explicitamente.
+
 ## 3. Regras de Desenvolvimento
 
 - Usar Manifest V3.
@@ -77,6 +108,8 @@ Antes de qualquer subagent executar tarefas, ele deve sempre ler este `AGENTS.md
 - Manter cada arquivo com uma responsabilidade clara.
 - Preferir funcoes pequenas e nomes descritivos.
 - Separar captura, configuracao e envio HTTP em modulos distintos.
+- Enviar o HTML usando o contrato JSON atual: `{ type: payloadType, html }`.
+- Exibir o retorno JSON da API em uma aba interna da extensao.
 - Tratar erros de forma explicita e amigavel para o usuario.
 - Nao introduzir build step se o projeto puder funcionar diretamente como extensao unpacked.
 - Se um build step for necessario, documentar claramente como executar e onde fica a saida carregavel no navegador.
@@ -89,7 +122,7 @@ Antes de qualquer subagent executar tarefas, ele deve sempre ler este `AGENTS.md
 - Preferir `const` por padrao e `let` apenas quando houver reatribuicao.
 - Evitar `var`.
 - Usar `async`/`await` para codigo assincromo.
-- Usar nomes claros, por exemplo `endpointUrl`, `httpMethod`, `customHeaders`, `autoSendEnabled`.
+- Usar nomes claros, por exemplo `endpointUrl`, `payloadType`, `autoSendEnabled`.
 - Evitar abreviacoes obscuras.
 - Validar entradas vindas do usuario antes de usar.
 - Isolar acesso a `chrome.storage` em helpers.
@@ -138,6 +171,7 @@ O endpoint deve ser sempre configuravel pelo usuario.
 Configuracoes esperadas:
 
 - URL do endpoint.
+- Type do payload, com `asurascans` como valor padrao inicial.
 - Metodo HTTP, provavelmente `POST` por padrao.
 - Headers opcionais.
 - Ativar/desativar envio automatico.
@@ -146,8 +180,9 @@ Regras importantes:
 
 - Nunca hardcodar endpoint no codigo-fonte.
 - Nunca enviar HTML se a URL do endpoint estiver vazia, invalida ou ambigua.
+- Nunca enviar HTML se o `type` estiver vazio.
 - Validar se a URL usa `https://`, exceto em ambiente local de desenvolvimento quando isso estiver documentado.
-- Validar metodo HTTP contra uma lista permitida, por exemplo `POST` e opcionalmente `PUT`.
+- Usar metodo HTTP `POST`.
 - Validar headers opcionais antes de enviar.
 - Nao permitir headers perigosos ou controlados pelo navegador, como `Host`, `Content-Length`, `Origin` e similares.
 - Armazenar configuracoes em `chrome.storage.sync` ou `chrome.storage.local`, conforme a necessidade do projeto.
@@ -158,8 +193,7 @@ Formato sugerido para configuracao:
 ```js
 const defaultConfig = {
   endpointUrl: '',
-  httpMethod: 'POST',
-  customHeaders: {},
+  payloadType: 'asurascans',
   autoSendEnabled: false
 };
 ```
@@ -179,6 +213,7 @@ Regras obrigatorias:
 - Nao capture HTML em paginas internas do navegador, como `chrome://`, `brave://` ou `chrome-extension://`.
 - Nao tente burlar restricoes do navegador para paginas protegidas.
 - Nao salve HTML capturado em storage persistente, salvo se houver uma necessidade explicita, documentada e aprovada pelo usuario.
+- O retorno JSON da API pode ser salvo apenas em storage de sessao para exibicao na aba de resultado.
 - Evite expor HTML capturado na UI, exceto em preview explicitamente solicitado e com cuidado.
 - Nao inclua cookies manualmente em requests.
 - Nao colete dados adicionais alem do necessario para a funcionalidade.
@@ -201,13 +236,16 @@ Roteiro basico:
 6. Abra uma pagina comum da web para teste.
 7. Abra o popup da extensao.
 8. Configure a URL do endpoint na pagina de opcoes, se ainda nao estiver configurada.
-9. Execute uma captura manual.
-10. Verifique se o endpoint recebeu o HTML esperado.
-11. Confirme que o console nao contem o HTML capturado.
-12. Teste comportamento com endpoint vazio, URL invalida e falha de rede.
-13. Teste que o envio automatico fica desativado por padrao.
-14. Teste ativar e desativar envio automatico, se essa funcionalidade existir.
-15. Teste paginas onde a captura deve falhar ou ser bloqueada, como `chrome://extensions`.
+9. Configure o `type`, usando `asurascans` quando for o contrato esperado pela API.
+10. Execute uma captura manual.
+11. Verifique se o endpoint recebeu o HTML esperado.
+12. Verifique se o payload recebido segue `{ "type": "<type-configurado>", "html": "<html>...</html>" }`.
+13. Confirme que uma nova aba abre exibindo o JSON retornado pela API.
+14. Confirme que o console nao contem o HTML capturado.
+15. Teste comportamento com endpoint vazio, type vazio, URL invalida e falha de rede.
+16. Teste que o envio automatico fica desativado por padrao.
+17. Teste ativar e desativar envio automatico, se essa funcionalidade existir.
+18. Teste paginas onde a captura deve falhar ou ser bloqueada, como `chrome://extensions`.
 
 Sugestoes para endpoint local de teste:
 
@@ -224,6 +262,7 @@ Sugestoes para endpoint local de teste:
 - Nao capturar mais dados do que o HTML necessario.
 - Nao registrar HTML capturado em logs.
 - Nao armazenar HTML capturado em storage persistente sem aprovacao explicita.
+- Nao exibir HTML capturado na aba de resultado; a aba deve mostrar apenas o JSON retornado pela API.
 - Nao adicionar permissoes amplas ao Manifest V3 sem justificativa.
 - Nao misturar UI, captura, storage e envio HTTP no mesmo arquivo quando isso puder ser evitado.
 - Nao mascarar falhas de envio; o usuario deve receber feedback claro.
@@ -240,7 +279,10 @@ Antes de concluir qualquer alteracao, verifique:
 - [ ] O HTML nao e enviado sem acao explicita do usuario ou sem configuracao clara.
 - [ ] O envio automatico, se existir, esta desativado por padrao.
 - [ ] A URL do endpoint e validada antes do envio.
-- [ ] O metodo HTTP e validado contra uma lista permitida.
+- [ ] O `type` do payload e configuravel e validado antes do envio.
+- [ ] O envio usa metodo `POST`.
+- [ ] O payload enviado segue `{ type: payloadType, html }`.
+- [ ] O retorno JSON da API abre em uma nova aba interna.
 - [ ] Headers opcionais sao validados e nao incluem headers proibidos.
 - [ ] Permissoes no `manifest.json` seguem o principio de menor privilegio.
 - [ ] Paginas internas do navegador sao tratadas com erro claro ou bloqueio seguro.

@@ -9,7 +9,10 @@ Subagent responsavel por criar, manter e executar estrategias de teste para a ex
 - Testes simples automatizados quando forem uteis.
 - Testes manuais da extensao no Chrome e Brave.
 - Testar configuracao do endpoint.
+- Testar configuracao do `type` do payload.
 - Testar envio do HTML.
+- Testar payload JSON `{ type: payloadType, html }`.
+- Testar exibicao do retorno JSON da API em nova aba.
 - Testar falhas de rede.
 - Testar permissoes e storage.
 - Criar checklists manuais quando automacao nao for suficiente.
@@ -23,12 +26,18 @@ Subagent responsavel por criar, manter e executar estrategias de teste para a ex
 - Nao enviar HTML real para endpoints externos em testes.
 - Usar mocks ou endpoints locais quando possivel.
 - Nao registrar HTML capturado em logs de teste.
+- Nao validar testes imprimindo o HTML real no console.
 - Garantir que cenarios de endpoint vazio, URL invalida e falha de rede sejam cobertos.
+- Garantir que o cenario de `type` vazio seja coberto.
 
 ## Cenarios Minimos
 
 - Configuracao ausente ou invalida bloqueia o envio.
 - Endpoint configurado recebe HTML apenas apos acao explicita ou configuracao clara.
+- Endpoint configurado recebe `POST` com `Content-Type: application/json`.
+- Payload contem o `type` configurado e `html`.
+- `asurascans` e usado como padrao inicial.
+- Retorno JSON da API abre em uma nova aba interna.
 - Metodo HTTP e validado.
 - Headers opcionais sao validados.
 - Envio automatico, se existir, inicia desativado por padrao.
