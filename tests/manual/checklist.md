@@ -16,6 +16,8 @@
 - [ ] Confirmar que parametros extras configurados por perfil sao enviados no mesmo JSON.
 - [ ] Confirmar que parametros extras com chaves `type` ou `html` sao bloqueados.
 - [ ] Confirmar que uma nova aba abre com o JSON retornado pela API.
+- [ ] Confirmar que desativar `Abrir aba de resultado` nao abre nova aba e mostra sucesso no popup.
+- [ ] Confirmar que com `Abrir aba de resultado` desativado, falha HTTP ou de rede mostra erro no popup.
 - [ ] Confirmar que o console nao exibe HTML capturado.
 - [ ] Confirmar que respostas da API que ecoam HTML sao redigidas na aba de resultado.
 - [ ] Confirmar que paginas `chrome://` ou `brave://` nao sao capturadas.

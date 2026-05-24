@@ -33,6 +33,7 @@ export const DEFAULT_CONFIG = {
   endpointUrl: "",
   payloadType: "asurascans",
   extraParams: {},
+  openResultTabEnabled: true,
   autoSendEnabled: false
 };
 
@@ -59,6 +60,7 @@ export function normalizeConfig(config = {}) {
     endpointUrl: activeProfile.endpointUrl,
     payloadType: activeProfile.payloadType,
     extraParams: activeProfile.extraParams,
+    openResultTabEnabled: config.openResultTabEnabled !== false,
     autoSendEnabled: Boolean(config.autoSendEnabled)
   };
 }
@@ -87,7 +89,13 @@ export function upsertActiveProfile(config, profileUpdates) {
   return normalizeConfig({
     ...normalizedConfig,
     activeProfileId,
-    profiles
+    profiles,
+    openResultTabEnabled: typeof profileUpdates.openResultTabEnabled === "boolean"
+      ? profileUpdates.openResultTabEnabled
+      : normalizedConfig.openResultTabEnabled,
+    autoSendEnabled: typeof profileUpdates.autoSendEnabled === "boolean"
+      ? profileUpdates.autoSendEnabled
+      : normalizedConfig.autoSendEnabled
   });
 }
 

@@ -13,7 +13,7 @@ Fluxo implementado:
 3. Clica em `Capturar e enviar`.
 4. A extensao captura o HTML da aba atual.
 5. O background envia um `POST` JSON para o endpoint configurado.
-6. A extensao abre uma nova aba interna exibindo o JSON retornado pela API.
+6. Se a opcao estiver ativa, a extensao abre uma nova aba interna exibindo o JSON retornado pela API. Se estiver desativada, o popup mostra o status do envio.
 
 ## Contrato da API
 
@@ -50,7 +50,7 @@ Retorno esperado:
 }
 ```
 
-O retorno pode ter qualquer estrutura JSON valida. A extensao mostra esse JSON em uma nova aba.
+O retorno pode ter qualquer estrutura JSON valida. A extensao mostra esse JSON em uma nova aba quando `Abrir aba de resultado` estiver ativado.
 
 ## Estrutura
 
@@ -108,6 +108,7 @@ O retorno pode ter qualquer estrutura JSON valida. A extensao mostra esse JSON e
 - O HTML capturado nao e salvo em storage persistente.
 - O HTML capturado nao e registrado em logs.
 - A URL do endpoint e validada antes do envio.
+- A aba de resultado e configuravel; quando desativada, o popup mostra sucesso ou erro do envio.
 - O envio automatico nao possui controle na interface nesta primeira versao.
 - A extensao pede permissao apenas para a origem do endpoint configurado. O manifest declara permissoes opcionais para `https://*/*` porque o endpoint e configuravel pelo usuario, e limita `http://` a `localhost` e `127.0.0.1` para desenvolvimento local.
 - A aba de resultado mostra apenas o JSON retornado pela API.

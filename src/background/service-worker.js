@@ -32,7 +32,8 @@ async function captureAndSendHtml({ tabId }) {
     throw new Error("Esta pagina nao permite captura pela extensao.");
   }
 
-  const activeProfile = getActiveProfile(await getConfig());
+  const config = await getConfig();
+  const activeProfile = getActiveProfile(config);
   await injectCaptureScript(tabId);
 
   const captureResult = await sendMessageToTab(tabId, {
@@ -50,20 +51,24 @@ async function captureAndSendHtml({ tabId }) {
     html: captureResult.html
   });
 
-  await saveLatestApiResponse({
-    receivedAt: new Date().toISOString(),
-    status: sendResult.status,
-    json: redactSensitiveApiResponse(sendResult.json)
-  });
+  if (config.openResultTabEnabled) {
+    await saveLatestApiResponse({
+      receivedAt: new Date().toISOString(),
+      status: sendResult.status,
+      json: redactSensitiveApiResponse(sendResult.json)
+    });
 
-  await openResultTab();
+    await openResultTab();
+  }
 
   if (!sendResult.ok) {
-    throw new Error(`O endpoint respondeu com status ${sendResult.status}. O JSON retornado foi aberto em uma nova aba.`);
+    const resultTabMessage = config.openResultTabEnabled ? " O JSON retornado foi aberto em uma nova aba." : "";
+    throw new Error(`O endpoint respondeu com status ${sendResult.status}.${resultTabMessage}`);
   }
 
   return {
-    status: sendResult.status
+    status: sendResult.status,
+    resultTabOpened: config.openResultTabEnabled
   };
 }
 

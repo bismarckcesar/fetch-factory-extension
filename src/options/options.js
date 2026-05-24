@@ -7,6 +7,7 @@ const profileNameInput = document.querySelector("#profile-name");
 const endpointUrlInput = document.querySelector("#endpoint-url");
 const payloadTypeInput = document.querySelector("#payload-type");
 const extraParamsInput = document.querySelector("#extra-params");
+const openResultTabEnabledInput = document.querySelector("#open-result-tab-enabled");
 const statusElement = document.querySelector("#status");
 let currentConfig = null;
 
@@ -66,6 +67,7 @@ function buildConfigFromForm() {
     endpointUrl: endpointUrlInput.value,
     payloadType: payloadTypeInput.value,
     extraParams: extraParamsValidation.value,
+    openResultTabEnabled: openResultTabEnabledInput.checked,
     autoSendEnabled: false
   });
 }
@@ -90,6 +92,7 @@ function fillActiveProfile() {
   endpointUrlInput.value = activeProfile.endpointUrl;
   payloadTypeInput.value = activeProfile.payloadType;
   extraParamsInput.value = JSON.stringify(activeProfile.extraParams, null, 2);
+  openResultTabEnabledInput.checked = currentConfig.openResultTabEnabled;
 }
 
 function parseExtraParams() {

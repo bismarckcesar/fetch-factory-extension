@@ -55,6 +55,14 @@ textarea {
   font-size: 13px;
 }
 
+.checkbox-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
 button {
   justify-self: start;
   border: 1px solid #1f6feb;

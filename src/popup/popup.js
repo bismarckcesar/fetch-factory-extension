@@ -7,6 +7,7 @@ const profileNameInput = document.querySelector("#profile-name");
 const endpointUrlInput = document.querySelector("#endpoint-url");
 const payloadTypeInput = document.querySelector("#payload-type");
 const extraParamsInput = document.querySelector("#extra-params");
+const openResultTabEnabledInput = document.querySelector("#open-result-tab-enabled");
 const captureButton = document.querySelector("#capture-button");
 const statusElement = document.querySelector("#status");
 let currentConfig = null;
@@ -82,7 +83,8 @@ captureButton.addEventListener("click", async () => {
       return;
     }
 
-    setStatus(`HTML enviado. Status ${result.status}. Resultado aberto em nova aba.`, "success");
+    const resultTabMessage = result.resultTabOpened ? " Resultado aberto em nova aba." : " Aba de resultado desativada.";
+    setStatus(`HTML enviado. Status ${result.status}.${resultTabMessage}`, "success");
   } catch (error) {
     setStatus(error.message || "Nao foi possivel capturar e enviar.", "error");
   } finally {
@@ -114,6 +116,7 @@ function buildConfigFromForm() {
     endpointUrl: endpointUrlInput.value,
     payloadType: payloadTypeInput.value,
     extraParams: extraParamsValidation.value,
+    openResultTabEnabled: openResultTabEnabledInput.checked,
     autoSendEnabled: false
   });
 }
@@ -138,6 +141,7 @@ function fillActiveProfile() {
   endpointUrlInput.value = activeProfile.endpointUrl;
   payloadTypeInput.value = activeProfile.payloadType;
   extraParamsInput.value = JSON.stringify(activeProfile.extraParams, null, 2);
+  openResultTabEnabledInput.checked = currentConfig.openResultTabEnabled;
 }
 
 function parseExtraParams() {
