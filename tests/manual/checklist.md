@@ -18,6 +18,7 @@
 - [ ] Confirmar que uma nova aba abre com o JSON retornado pela API.
 - [ ] Confirmar que desativar `Abrir aba de resultado` nao abre nova aba e mostra sucesso no popup.
 - [ ] Confirmar que com `Abrir aba de resultado` desativado, o alerta aparece na janela da pagina, nao no menu da extensao.
+- [ ] Confirmar que fechar o popup apos iniciar o envio ainda mostra o alerta na janela da pagina.
 - [ ] Confirmar que com `Abrir aba de resultado` desativado, falha HTTP ou de rede mostra erro no popup.
 - [ ] Confirmar que o console nao exibe HTML capturado.
 - [ ] Confirmar que respostas da API que ecoam HTML sao redigidas na aba de resultado.

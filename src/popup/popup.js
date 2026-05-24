@@ -82,12 +82,12 @@ captureButton.addEventListener("click", async () => {
     });
 
     if (!result || !result.ok) {
-      setFeedback(result?.message || "Nao foi possivel enviar o HTML.", "error", nextConfig.openResultTabEnabled, tabId);
+      setStatus(result?.message || "Nao foi possivel enviar o HTML.", "error");
       return;
     }
 
     const resultTabMessage = result.resultTabOpened ? " Resultado aberto em nova aba." : " Aba de resultado desativada.";
-    setFeedback(`HTML enviado. Status ${result.status}.${resultTabMessage}`, "success", result.resultTabOpened, tabId);
+    setStatus(`HTML enviado. Status ${result.status}.${resultTabMessage}`, "success");
   } catch (error) {
     setFeedback(error.message || "Nao foi possivel capturar e enviar.", "error", openResultTabEnabledInput.checked, feedbackTabId);
   } finally {

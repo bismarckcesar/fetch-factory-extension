@@ -8,7 +8,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 
   if (message.type === "CAPTURE_AND_SEND_HTML") {
-    captureAndSendHtml(message)
+    captureAndSendHtmlWithFeedback(message)
       .then((result) => {
         sendResponse({ ok: true, ...result });
       })
@@ -39,6 +39,24 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   return false;
 });
+
+async function captureAndSendHtmlWithFeedback(message) {
+  try {
+    const result = await captureAndSendHtml(message);
+
+    if (!result.resultTabOpened) {
+      await showTabAlert({
+        tabId: message.tabId,
+        message: `HTML enviado. Status ${result.status}. Aba de resultado desativada.`
+      });
+    }
+
+    return result;
+  } catch (error) {
+    await showFailureAlertIfResultTabIsDisabled(message.tabId, error.message);
+    throw error;
+  }
+}
 
 async function captureAndSendHtml({ tabId }) {
   if (!Number.isInteger(tabId)) {
@@ -170,6 +188,23 @@ async function showTabAlert({ tabId, message }) {
   });
 
   return {};
+}
+
+async function showFailureAlertIfResultTabIsDisabled(tabId, message) {
+  try {
+    const config = await getConfig();
+
+    if (config.openResultTabEnabled) {
+      return;
+    }
+
+    await showTabAlert({
+      tabId,
+      message: message || "Nao foi possivel capturar e enviar."
+    });
+  } catch {
+    // O popup ainda mostra o erro se estiver aberto; nao exponha detalhes no service worker.
+  }
 }
 
 function sendMessageToTab(tabId, message) {
