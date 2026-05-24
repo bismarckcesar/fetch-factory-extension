@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Fetch Factory</title>
+    <link rel="stylesheet" href="./popup.css">
+  </head>
+  <body>
+    <main class="popup">
+      <header class="header">
+        <h1>Fetch Factory</h1>
+      </header>
+
+      <form id="settings-form" class="form">
+        <label class="field">
+          <span>Endpoint</span>
+          <input id="endpoint-url" type="url" placeholder="https://example.com/endpoint" autocomplete="off">
+        </label>
+
+        <label class="checkbox-field">
+          <input id="auto-send-enabled" type="checkbox">
+          <span>Envio automatico</span>
+        </label>
+
+        <button id="save-button" type="submit">Salvar configuracao</button>
+      </form>
+
+      <button id="capture-button" class="primary-button" type="button">Capturar e enviar</button>
+
+      <p id="status" class="status" role="status" aria-live="polite"></p>
+
+      <footer class="footer">
+        <a href="../options/options.html" target="_blank" rel="noreferrer">Opcoes</a>
+      </footer>
+    </main>
+
+    <script type="module" src="./popup.js"></script>
+  </body>
+</html>

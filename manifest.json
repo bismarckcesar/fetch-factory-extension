@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "Fetch Factory",
+  "version": "0.1.0",
+  "description": "Captura o HTML da aba atual e envia para um endpoint configuravel.",
+  "action": {
+    "default_title": "Fetch Factory",
+    "default_popup": "src/popup/popup.html"
+  },
+  "background": {
+    "service_worker": "src/background/service-worker.js",
+    "type": "module"
+  },
+  "options_page": "src/options/options.html",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
+  ],
+  "optional_host_permissions": [
+    "http://*/*",
+    "https://*/*"
+  ]
+}
