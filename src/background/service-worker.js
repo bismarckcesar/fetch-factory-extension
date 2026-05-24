@@ -21,12 +21,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   return true;
 });
 
-async function captureAndSendHtml({ tabId, tabUrl }) {
+async function captureAndSendHtml({ tabId }) {
   if (!Number.isInteger(tabId)) {
     throw new Error("Nenhuma aba ativa foi encontrada.");
   }
 
-  if (isUnsupportedPageUrl(tabUrl)) {
+  const tab = await getTab(tabId);
+
+  if (isUnsupportedPageUrl(tab.url)) {
     throw new Error("Esta pagina nao permite captura pela extensao.");
   }
 
@@ -50,7 +52,7 @@ async function captureAndSendHtml({ tabId, tabUrl }) {
   await saveLatestApiResponse({
     receivedAt: new Date().toISOString(),
     status: sendResult.status,
-    json: sendResult.json
+    json: redactSensitiveApiResponse(sendResult.json)
   });
 
   await openResultTab();
@@ -62,6 +64,41 @@ async function captureAndSendHtml({ tabId, tabUrl }) {
   return {
     status: sendResult.status
   };
+}
+
+function redactSensitiveApiResponse(value) {
+  const sensitiveKeys = new Set(["html", "body", "content", "document", "pageHtml", "capturedHtml"]);
+
+  if (Array.isArray(value)) {
+    return value.map((item) => redactSensitiveApiResponse(item));
+  }
+
+  if (!value || typeof value !== "object") {
+    return value;
+  }
+
+  return Object.fromEntries(Object.entries(value).map(([key, entryValue]) => {
+    if (sensitiveKeys.has(key)) {
+      return [key, "[redigido pela extensao]"];
+    }
+
+    return [key, redactSensitiveApiResponse(entryValue)];
+  }));
+}
+
+function getTab(tabId) {
+  return new Promise((resolve, reject) => {
+    chrome.tabs.get(tabId, (tab) => {
+      const error = chrome.runtime.lastError;
+
+      if (error) {
+        reject(new Error(error.message));
+        return;
+      }
+
+      resolve(tab);
+    });
+  });
 }
 
 function openResultTab() {

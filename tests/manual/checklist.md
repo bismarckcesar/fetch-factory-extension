@@ -15,6 +15,7 @@
 - [ ] Confirmar que o payload contem `html`.
 - [ ] Confirmar que uma nova aba abre com o JSON retornado pela API.
 - [ ] Confirmar que o console nao exibe HTML capturado.
+- [ ] Confirmar que respostas da API que ecoam HTML sao redigidas na aba de resultado.
 - [ ] Confirmar que paginas `chrome://` ou `brave://` nao sao capturadas.
 - [ ] Confirmar que falha de rede mostra erro no popup.
 - [ ] Confirmar que a configuracao persiste ao reabrir o popup.

@@ -4,7 +4,6 @@ import { getConfig, saveConfig } from "../shared/storage.js";
 const form = document.querySelector("#settings-form");
 const endpointUrlInput = document.querySelector("#endpoint-url");
 const payloadTypeInput = document.querySelector("#payload-type");
-const autoSendEnabledInput = document.querySelector("#auto-send-enabled");
 const captureButton = document.querySelector("#capture-button");
 const statusElement = document.querySelector("#status");
 
@@ -15,7 +14,6 @@ async function initPopup() {
     const config = await getConfig();
     endpointUrlInput.value = config.endpointUrl;
     payloadTypeInput.value = config.payloadType;
-    autoSendEnabledInput.checked = config.autoSendEnabled;
   } catch {
     setStatus("Nao foi possivel carregar a configuracao.", "error");
   }
@@ -87,8 +85,7 @@ captureButton.addEventListener("click", async () => {
 
     const result = await sendRuntimeMessage({
       type: "CAPTURE_AND_SEND_HTML",
-      tabId: tab.id,
-      tabUrl: tab.url
+      tabId: tab.id
     });
 
     if (!result || !result.ok) {
@@ -108,7 +105,7 @@ function saveCurrentConfig() {
   return saveConfig({
     endpointUrl: endpointUrlInput.value,
     payloadType: payloadTypeInput.value,
-    autoSendEnabled: autoSendEnabledInput.checked
+    autoSendEnabled: false
   });
 }
 

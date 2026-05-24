@@ -105,9 +105,10 @@ O retorno pode ter qualquer estrutura JSON valida. A extensao mostra esse JSON e
 - O HTML capturado nao e salvo em storage persistente.
 - O HTML capturado nao e registrado em logs.
 - A URL do endpoint e validada antes do envio.
-- O envio automatico fica salvo como configuracao, mas nao executa envio silencioso nesta primeira versao.
-- A extensao pede permissao apenas para a origem do endpoint configurado.
+- O envio automatico nao possui controle na interface nesta primeira versao.
+- A extensao pede permissao apenas para a origem do endpoint configurado. O manifest declara permissoes opcionais para `https://*/*` porque o endpoint e configuravel pelo usuario, e limita `http://` a `localhost` e `127.0.0.1` para desenvolvimento local.
 - A aba de resultado mostra apenas o JSON retornado pela API.
+- Se a API devolver campos com nomes sensiveis como `html`, `body`, `content`, `document`, `pageHtml` ou `capturedHtml`, a aba de resultado mostra esses valores como redigidos.
 
 ## Endpoint de teste local
 

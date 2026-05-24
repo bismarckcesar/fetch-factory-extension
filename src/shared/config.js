@@ -4,7 +4,7 @@ export const DEFAULT_CONFIG = {
   autoSendEnabled: false
 };
 
-const LOCAL_HTTP_HOSTS = new Set(["localhost", "127.0.0.1", "[::1]"]);
+const LOCAL_HTTP_HOSTS = new Set(["localhost", "127.0.0.1"]);
 const UNSUPPORTED_PAGE_PROTOCOLS = new Set([
   "about:",
   "brave:",
@@ -28,6 +28,13 @@ export function validatePayloadType(payloadType) {
     return {
       ok: false,
       message: "Configure o type antes de enviar."
+    };
+  }
+
+  if (normalizedType.length > 80 || !/^[a-zA-Z0-9._:-]+$/.test(normalizedType)) {
+    return {
+      ok: false,
+      message: "Use um type com ate 80 caracteres, contendo apenas letras, numeros, ponto, hifen, dois-pontos ou underline."
     };
   }
 
@@ -88,7 +95,7 @@ export function getEndpointOriginPattern(endpointUrl) {
     return null;
   }
 
-  return `${validation.url.protocol}//${validation.url.host}/*`;
+  return `${validation.url.protocol}//${validation.url.hostname}/*`;
 }
 
 export function isUnsupportedPageUrl(pageUrl) {
